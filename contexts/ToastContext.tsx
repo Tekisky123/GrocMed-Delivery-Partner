@@ -1,0 +1,216 @@
+import { Icon } from '@/components/ui/Icon';
+import { Colors } from '@/constants/Colors';
+import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { Animated, Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+type ToastType = 'success' | 'error' | 'info';
+
+interface ToastContextType {
+    showToast: (message: string, type?: ToastType) => void;
+    hideToast: () => void;
+}
+
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+const { width } = Dimensions.get('window');
+
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+    const [message, setMessage] = useState('');
+    const [type, setType] = useState<ToastType>('info');
+    const [visible, setVisible] = useState(false);
+
+    const slideAnim = useRef(new Animated.Value(-100)).current;
+    const opacityAnim = useRef(new Animated.Value(0)).current;
+
+    const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const hideToast = useCallback(() => {
+        if (hideTimeoutRef.current) {
+            clearTimeout(hideTimeoutRef.current);
+            hideTimeoutRef.current = null;
+        }
+        Animated.parallel([
+            Animated.timing(slideAnim, {
+                toValue: -100,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacityAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            setVisible(false);
+        });
+    }, [slideAnim, opacityAnim]);
+
+    const hideToastRef = useRef(hideToast);
+    hideToastRef.current = hideToast;
+
+    const showToast = useCallback((msg: string, toastType: ToastType = 'info') => {
+        if (hideTimeoutRef.current) {
+            clearTimeout(hideTimeoutRef.current);
+            hideTimeoutRef.current = null;
+        }
+
+        setMessage(msg);
+        setType(toastType);
+        setVisible(true);
+
+        slideAnim.stopAnimation();
+        opacityAnim.stopAnimation();
+
+        Animated.parallel([
+            Animated.spring(slideAnim, {
+                toValue: Platform.OS === 'ios' ? 60 : 40,
+                useNativeDriver: true,
+                friction: 5,
+            }),
+            Animated.timing(opacityAnim, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start();
+
+        hideTimeoutRef.current = setTimeout(() => {
+            hideToastRef.current();
+        }, 3000);
+    }, [slideAnim, opacityAnim]);
+
+    const getToastStyle = () => {
+        switch (type) {
+            case 'success':
+                return {
+                    backgroundColor: Colors.surface,
+                    borderLeftColor: Colors.success,
+                    icon: 'check-circle',
+                    iconColor: Colors.success,
+                    title: 'Success',
+                };
+            case 'error':
+                return {
+                    backgroundColor: Colors.surface,
+                    borderLeftColor: Colors.error,
+                    icon: 'error',
+                    iconColor: Colors.error,
+                    title: 'Error',
+                };
+            case 'info':
+            default:
+                return {
+                    backgroundColor: Colors.surface,
+                    borderLeftColor: Colors.primary,
+                    icon: 'info',
+                    iconColor: Colors.primary,
+                    title: 'Info',
+                };
+        }
+    };
+
+    const styleConfig = getToastStyle();
+
+    return (
+        <ToastContext.Provider value={{ showToast, hideToast }}>
+            {children}
+
+            <Animated.View
+                pointerEvents={visible ? 'box-none' : 'none'}
+                style={[
+                    styles.toastContainer,
+                    {
+                        transform: [{ translateY: slideAnim }],
+                        opacity: opacityAnim,
+                    },
+                ]}
+            >
+                {visible && (
+                    <View style={[
+                        styles.toastCard,
+                        { borderLeftColor: styleConfig.borderLeftColor }
+                    ]}>
+                        <View style={[styles.iconContainer, { backgroundColor: `${styleConfig.iconColor}15` }]}>
+                            <Icon
+                                name={styleConfig.icon}
+                                size={24}
+                                color={styleConfig.iconColor}
+                                library="material"
+                            />
+                        </View>
+                        <View style={styles.textContainer}>
+                            <Text style={styles.title}>{styleConfig.title}</Text>
+                            <Text style={styles.message} numberOfLines={2}>
+                                {message}
+                            </Text>
+                        </View>
+                        <TouchableOpacity onPress={hideToast} style={styles.closeButton}>
+                            <Icon name="close" size={18} color={Colors.textTertiary} library="material" />
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </Animated.View>
+        </ToastContext.Provider>
+    );
+}
+
+const styles = StyleSheet.create({
+    toastContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 20,
+        right: 20,
+        zIndex: 9999,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    toastCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 12,
+        width: '100%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        borderLeftWidth: 6,
+        borderWidth: 1,
+        borderColor: '#f0f0f0',
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    textContainer: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    title: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#1a1a1a',
+        marginBottom: 2,
+    },
+    message: {
+        fontSize: 13,
+        color: '#666666',
+        fontWeight: '500',
+    },
+    closeButton: {
+        padding: 8,
+    },
+});
+
+export function useToast() {
+    const context = useContext(ToastContext);
+    if (!context) {
+        throw new Error('useToast must be used within a ToastProvider');
+    }
+    return context;
+}
