@@ -28,6 +28,13 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "39d97a13-b247-427c-b0fb-57c7e173226c"
+      }
+    },
+    "owner": "tekisky"
   }
 }
