@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "GrocMed Delivery Partner",
+    "name": "Grocmed Delivery Partner",
     "slug": "grocmed-delivery-partner",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,20 +14,43 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.grocmed.delivery"
+      "bundleIdentifier": "com.grocmed.deliverypartner"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.grocmed.delivery"
+      "package": "com.grocmed.deliverypartner",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK"
+      ],
+      "blockedPermissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Grocmed Delivery Partner to access your photos.",
+          "cameraPermission": false
+        }
+      ]
     ],
     "extra": {
       "router": {},
