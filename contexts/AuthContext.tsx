@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { tokenManager } from '../api/axiosInstance';
 import { authApi } from '../api/authApi';
 import { Partner, AuthContextType } from '../types';
+import { registerForPushNotificationsAsync } from '../utils/notificationHelper';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -13,6 +14,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         loadPartner();
     }, []);
+
+    const syncNotificationToken = async () => {
+        try {
+            const token = await registerForPushNotificationsAsync();
+            if (token) {
+                await authApi.updateFcmToken(token);
+                console.log('FCM Token synced successfully with backend:', token);
+            }
+        } catch (error) {
+            console.error('Failed to sync FCM Token with backend:', error);
+        }
+    };
 
     const loadPartner = async () => {
         try {
@@ -30,6 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         isActive: res.data.isActive ?? true,
                     };
                     setPartner(partnerData);
+                    // Trigger async token sync
+                    syncNotificationToken();
                 } else {
                     await logout();
                 }
@@ -59,6 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     isActive: profileRes.data.isActive ?? true,
                 };
                 setPartner(partnerData);
+                // Trigger async token sync
+                syncNotificationToken();
             }
             return { success: true };
         }

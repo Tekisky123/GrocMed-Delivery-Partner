@@ -139,7 +139,7 @@ export default function OrderDetailsScreen() {
                </View>
             </View>
             <TouchableOpacity style={styles.mapBtn} onPress={openInMaps}>
-               <Icon name="map" size={20} color={Colors.primary} library="lucide" />
+               <Icon name="map" size={20} color={Colors.primary} library="material" />
                <Text style={styles.mapBtnText}>View on Google Maps</Text>
             </TouchableOpacity>
           </View>
@@ -163,7 +163,7 @@ export default function OrderDetailsScreen() {
       <View style={styles.footer}>
         <TouchableOpacity style={styles.deliverBtn} activeOpacity={0.9} onPress={() => handleUpdateStatus()}>
           <LinearGradient
-            colors={Colors.gradientPrimary}
+            colors={Colors.gradientPrimary as [string, string]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.btnGradient}

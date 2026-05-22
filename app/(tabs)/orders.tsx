@@ -154,7 +154,7 @@ export default function OrdersScreen() {
                 style={[styles.acceptButton, { backgroundColor: Colors.gray100 }]}
                 onPress={() => openInMaps(item)}
             >
-                <Icon name="map" size={16} color={Colors.textPrimary} library="lucide" />
+                <Icon name="map" size={16} color={Colors.textPrimary} library="material" />
             </TouchableOpacity>
             <TouchableOpacity 
                 style={styles.acceptButton}
@@ -200,7 +200,7 @@ export default function OrdersScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
           ListEmptyComponent={
             <View style={{ flex: 1, alignItems: 'center', marginTop: 100 }}>
-              <Icon name="shopping-bag" size={64} color={Colors.gray200} library="lucide" />
+              <Icon name="shopping-bag" size={64} color={Colors.gray200} library="feather" />
               <Text style={{ color: Colors.gray400, marginTop: 16 }}>No orders found</Text>
             </View>
           }

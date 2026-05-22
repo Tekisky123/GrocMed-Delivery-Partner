@@ -53,7 +53,7 @@ export default function DashboardScreen() {
   };
 
   const dashboardStats = [
-    { label: 'Today Orders', value: `${stats?.todayDeliveries || 0}`, icon: 'shopping-bag', library: 'lucide' as const, color: Colors.primary },
+    { label: 'Today Orders', value: `${stats?.todayDeliveries || 0}`, icon: 'shopping-bag', library: 'feather' as const, color: Colors.primary },
     { label: 'Monthly Done', value: `${stats?.monthlyDeliveries || 0}`, icon: 'check-circle', library: 'material' as const, color: Colors.success },
   ];
 

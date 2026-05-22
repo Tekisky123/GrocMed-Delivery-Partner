@@ -2,7 +2,7 @@ import { Tabs, Redirect } from 'expo-router';
 import React from 'react';
 import { Platform, ActivityIndicator, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { LayoutDashboard, ShoppingBag, User, MapPin } from 'lucide-react-native';
+import { LayoutDashboard, ShoppingBag, User, Bell } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
@@ -24,7 +24,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.gray,
+        tabBarInactiveTintColor: Colors.gray500,
         headerShown: false,
         tabBarStyle: {
           height: Platform.OS === 'ios' ? 90 : 70,
@@ -52,6 +52,13 @@ export default function TabLayout() {
         options={{
           title: 'Orders',
           tabBarIcon: ({ color }) => <ShoppingBag size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ color }) => <Bell size={24} color={color} />,
         }}
       />
       <Tabs.Screen
