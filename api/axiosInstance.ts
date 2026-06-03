@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const TOKEN_KEY = 'delivery_partner_auth_token';
 
-const BASE_URL = 'https://groc-med-backend.vercel.app/api';
+const BASE_URL = 'https://grocmed-backend-production.up.railway.app/api';
 // const BASE_URL = 'http://localhost:3000/api';
 
 export const tokenManager = {
