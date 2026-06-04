@@ -40,5 +40,14 @@ export const orderApi = {
         } catch (error: any) {
             return { success: false, message: error.response?.data?.message || 'Failed to fetch dashboard stats' };
         }
+    },
+
+    getAppSettings: async () => {
+        try {
+            const response = await axiosInstance.get('/settings');
+            return response.data;
+        } catch (error: any) {
+            return { success: false, message: error.response?.data?.message || 'Failed to fetch settings' };
+        }
     }
 };
