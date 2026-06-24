@@ -76,7 +76,7 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>Sign Out Partner</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>GrocMed Delivery • v1.0.0</Text>
+        <Text style={styles.version}>GrocMed Delivery • v2.0.1</Text>
       </ScrollView>
 
       {/* Help & Support Modal */}
