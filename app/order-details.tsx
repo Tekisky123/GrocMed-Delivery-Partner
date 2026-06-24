@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import {
   StyleSheet, Text, View, TouchableOpacity, Dimensions, Platform,
-  Linking, Modal, Image, ActivityIndicator, ScrollView, StatusBar
+  Linking, Modal, Image, ActivityIndicator, ScrollView, StatusBar,
+  TextInput
 } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -79,14 +80,41 @@ function PaymentModal({
   visible: boolean;
   orderId: string;
   totalAmount: number;
-  paymentMethod: 'Cash' | 'Online' | null;
+  paymentMethod: 'Cash' | 'Online' | 'Split' | null;
   isUpdating: boolean;
   paymentImageSource: { uri: string } | number;
-  onSelectMethod: (m: 'Cash' | 'Online') => void;
-  onConfirm: () => void;
+  onSelectMethod: (m: 'Cash' | 'Online' | 'Split') => void;
+  onConfirm: (cash?: number, online?: number) => void;
   onClose: () => void;
 }) {
   const [fsVisible, setFsVisible] = useState(false);
+  const [cashVal, setCashVal] = useState('');
+  const [onlineVal, setOnlineVal] = useState('');
+
+  const sanitizeNumberInput = (text: string) => {
+    let cleaned = text.replace(/[^0-9.]/g, '');
+    const parts = cleaned.split('.');
+    if (parts.length > 2) {
+      cleaned = parts[0] + '.' + parts.slice(1).join('');
+    }
+    return cleaned;
+  };
+
+  // Reset inputs when modal is closed or opened
+  useEffect(() => {
+    if (!visible) {
+      setCashVal('');
+      setOnlineVal('');
+    }
+  }, [visible]);
+
+  const cashAmount = parseFloat(cashVal) || 0;
+  const onlineAmount = parseFloat(onlineVal) || 0;
+  const sumAmount = cashAmount + onlineAmount;
+  
+  // Validation checks for split payment
+  const isSplitValid = Math.abs(sumAmount - totalAmount) < 0.01;
+  const isConfirmDisabled = isUpdating || !paymentMethod || (paymentMethod === 'Split' && !isSplitValid);
 
   return (
     <>
@@ -131,9 +159,9 @@ function PaymentModal({
                 activeOpacity={0.8}
               >
                 <View style={[m.methodIcon, paymentMethod === 'Cash' && m.methodIconActive]}>
-                  <Icon name="payments" size={28} color={paymentMethod === 'Cash' ? '#fff' : Colors.gray400} />
+                  <Icon name="payments" size={24} color={paymentMethod === 'Cash' ? '#fff' : Colors.gray400} />
                 </View>
-                <Text style={[m.methodLabel, paymentMethod === 'Cash' && m.methodLabelActive]}>Cash</Text>
+                <Text style={[m.methodLabel, paymentMethod === 'Cash' && m.methodLabelActive, { fontSize: 12 }]}>Cash</Text>
                 {paymentMethod === 'Cash' && (
                   <View style={m.checkBadge}>
                     <Icon name="check" size={12} color="#fff" />
@@ -148,10 +176,27 @@ function PaymentModal({
                 activeOpacity={0.8}
               >
                 <View style={[m.methodIcon, paymentMethod === 'Online' && m.methodIconActive]}>
-                  <Icon name="qr-code-scanner" size={28} color={paymentMethod === 'Online' ? '#fff' : Colors.gray400} />
+                  <Icon name="qr-code-scanner" size={24} color={paymentMethod === 'Online' ? '#fff' : Colors.gray400} />
                 </View>
-                <Text style={[m.methodLabel, paymentMethod === 'Online' && m.methodLabelActive]}>Online / UPI</Text>
+                <Text style={[m.methodLabel, paymentMethod === 'Online' && m.methodLabelActive, { fontSize: 12 }]}>Online</Text>
                 {paymentMethod === 'Online' && (
+                  <View style={m.checkBadge}>
+                    <Icon name="check" size={12} color="#fff" />
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Split */}
+              <TouchableOpacity
+                style={[m.methodCard, paymentMethod === 'Split' && m.methodCardActive]}
+                onPress={() => onSelectMethod('Split')}
+                activeOpacity={0.8}
+              >
+                <View style={[m.methodIcon, paymentMethod === 'Split' && m.methodIconActive]}>
+                  <Icon name="call-split" size={24} color={paymentMethod === 'Split' ? '#fff' : Colors.gray400} library="material" />
+                </View>
+                <Text style={[m.methodLabel, paymentMethod === 'Split' && m.methodLabelActive, { fontSize: 12 }]}>Split</Text>
+                {paymentMethod === 'Split' && (
                   <View style={m.checkBadge}>
                     <Icon name="check" size={12} color="#fff" />
                   </View>
@@ -159,8 +204,66 @@ function PaymentModal({
               </TouchableOpacity>
             </View>
 
-            {/* ── QR / Payment Image – shown only when Online is selected ── */}
-            {paymentMethod === 'Online' && (
+            {/* Split inputs */}
+            {paymentMethod === 'Split' && (
+              <View style={m.splitSection}>
+                <View style={m.inputGroupRow}>
+                  <View style={m.inputGroup}>
+                    <Text style={m.inputLabel}>Cash Amount (₹)</Text>
+                    <TextInput
+                      style={m.textInput}
+                      keyboardType="numeric"
+                      placeholder="0.00"
+                      placeholderTextColor={Colors.gray400}
+                      value={cashVal}
+                      onChangeText={(val) => setCashVal(sanitizeNumberInput(val))}
+                    />
+                  </View>
+                  <View style={m.inputGroup}>
+                    <Text style={m.inputLabel}>Online Amount (₹)</Text>
+                    <TextInput
+                      style={m.textInput}
+                      keyboardType="numeric"
+                      placeholder="0.00"
+                      placeholderTextColor={Colors.gray400}
+                      value={onlineVal}
+                      onChangeText={(val) => setOnlineVal(sanitizeNumberInput(val))}
+                    />
+                  </View>
+                </View>
+
+                {/* Split Status indicator */}
+                <View style={m.statusIndicatorRow}>
+                  {!isSplitValid ? (
+                    sumAmount < totalAmount ? (
+                      <View style={[m.statusPill, m.statusPillWarning]}>
+                        <Icon name="warning" size={14} color="#E65100" />
+                        <Text style={[m.statusText, { color: '#E65100' }]}>
+                          Remaining: ₹{(totalAmount - sumAmount).toFixed(2)}
+                        </Text>
+                      </View>
+                    ) : (
+                      <View style={[m.statusPill, m.statusPillDanger]}>
+                        <Icon name="error" size={14} color="#C62828" />
+                        <Text style={[m.statusText, { color: '#C62828' }]}>
+                          Excess: ₹{(sumAmount - totalAmount).toFixed(2)}
+                        </Text>
+                      </View>
+                    )
+                  ) : (
+                    <View style={[m.statusPill, m.statusPillSuccess]}>
+                      <Icon name="check-circle" size={14} color="#2E7D32" />
+                      <Text style={[m.statusText, { color: '#2E7D32' }]}>
+                        Balanced (Total: ₹{totalAmount})
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            )}
+
+            {/* ── QR / Payment Image – shown for Online or Split ── */}
+            {(paymentMethod === 'Online' || paymentMethod === 'Split') && (
               <View style={m.qrSection}>
                 <View style={m.qrHeader}>
                   <Icon name="info" size={16} color={Colors.info} />
@@ -185,7 +288,9 @@ function PaymentModal({
                 </TouchableOpacity>
 
                 <Text style={m.qrNote}>
-                  Ask the customer to scan and pay ₹{totalAmount} before confirming.
+                  {paymentMethod === 'Split' 
+                    ? `Ask the customer to scan and pay the online portion of ₹${onlineAmount.toFixed(2)} before confirming.`
+                    : `Ask the customer to scan and pay ₹${totalAmount} before confirming.`}
                 </Text>
               </View>
             )}
@@ -197,9 +302,9 @@ function PaymentModal({
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[m.confirmBtn, (!paymentMethod || isUpdating) && m.confirmBtnDisabled]}
-                onPress={onConfirm}
-                disabled={!paymentMethod || isUpdating}
+                style={[m.confirmBtn, isConfirmDisabled && m.confirmBtnDisabled]}
+                onPress={() => onConfirm(cashAmount, onlineAmount)}
+                disabled={isConfirmDisabled}
                 activeOpacity={0.85}
               >
                 <LinearGradient
@@ -237,7 +342,7 @@ export default function OrderDetailsScreen() {
   const { showToast } = useToast();
 
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online' | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online' | 'Split' | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [paymentQrUrl, setPaymentQrUrl] = useState<string | null>(null);
 
@@ -253,7 +358,7 @@ export default function OrderDetailsScreen() {
   const paymentImageSource: { uri: string } | number =
     paymentQrUrl ? { uri: paymentQrUrl } : FALLBACK_IMAGE;
 
-  const handleUpdateStatus = async (forcedStatus?: string, forcedMethod?: string) => {
+  const handleUpdateStatus = async (forcedStatus?: string, forcedMethod?: string, cashAmount?: number, onlineAmount?: number) => {
     if (!order) return;
 
     let nextStatus = forcedStatus || '';
@@ -274,7 +379,7 @@ export default function OrderDetailsScreen() {
     }
 
     setIsUpdating(true);
-    const res = await orderApi.updateOrderStatus(order._id, nextStatus, forcedMethod);
+    const res = await orderApi.updateOrderStatus(order._id, nextStatus, forcedMethod, cashAmount, onlineAmount);
     setIsUpdating(false);
 
     if (res.success) {
@@ -286,12 +391,12 @@ export default function OrderDetailsScreen() {
     }
   };
 
-  const confirmCODelivery = () => {
+  const confirmCODelivery = (cash?: number, online?: number) => {
     if (!paymentMethod) {
       showToast('Please select a payment method', 'error');
       return;
     }
-    handleUpdateStatus('Delivered', paymentMethod);
+    handleUpdateStatus('Delivered', paymentMethod, cash, online);
   };
 
   const openInMaps = () => {
@@ -591,6 +696,69 @@ const m = StyleSheet.create({
     flexDirection: 'row', gap: 8,
   },
   confirmText: { fontSize: 15, fontWeight: '900', color: 'white' },
+  splitSection: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+  },
+  inputGroupRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  inputGroup: {
+    flex: 1,
+  },
+  inputLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  textInput: {
+    height: 48,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  statusIndicatorRow: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  statusPillWarning: {
+    backgroundColor: '#FFF3E0',
+    borderColor: '#FFE0B2',
+  },
+  statusPillDanger: {
+    backgroundColor: '#FFEBEE',
+    borderColor: '#FFCDD2',
+  },
+  statusPillSuccess: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#C8E6C9',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
 });
 
 // Fullscreen viewer styles

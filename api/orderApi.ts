@@ -11,11 +11,13 @@ export const orderApi = {
         }
     },
 
-    updateOrderStatus: async (orderId: string, status: string, codMethod?: string) => {
+    updateOrderStatus: async (orderId: string, status: string, codMethod?: string, cashAmount?: number, onlineAmount?: number) => {
         try {
             const response = await axiosInstance.put(`/admin/deliveryPartner/update-order-status/${orderId}`, {
                 status,
                 codMethod,
+                cashAmount,
+                onlineAmount,
             });
             return response.data;
         } catch (error: any) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Alert, Modal, Linking, Platform } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/ui/Icon';
@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileScreen() {
   const { partner, logout } = useAuth();
+  const [supportVisible, setSupportVisible] = React.useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -20,10 +21,10 @@ export default function ProfileScreen() {
   };
 
   const menuItems = [
-    { label: 'Personal Details', icon: 'person', library: 'material' as const, color: '#3B82F6' },
-    { label: 'Notification Settings', icon: 'notifications', library: 'material' as const, color: '#8B5CF6' },
-    { label: 'Verification Status', icon: 'verified-user', library: 'material' as const, color: Colors.success },
-    { label: 'Help & Support', icon: 'support-agent', library: 'material' as const, color: Colors.neutral },
+    { label: 'Personal Details', icon: 'person', library: 'material' as const, color: '#3B82F6', onPress: () => Alert.alert('Personal Details', 'Feature coming soon!') },
+    { label: 'Notification Settings', icon: 'notifications', library: 'material' as const, color: '#8B5CF6', onPress: () => Alert.alert('Notification Settings', 'Feature coming soon!') },
+    { label: 'Verification Status', icon: 'verified-user', library: 'material' as const, color: Colors.success, onPress: () => Alert.alert('Verification Status', 'Your account is verified.') },
+    { label: 'Help & Support', icon: 'support-agent', library: 'material' as const, color: Colors.neutral, onPress: () => setSupportVisible(true) },
   ];
 
   return (
@@ -55,7 +56,11 @@ export default function ProfileScreen() {
         {/* Menu Section */}
         <View style={styles.menuBox}>
           {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={[styles.menuItem, index === menuItems.length - 1 && { borderBottomWidth: 0 }]}>
+            <TouchableOpacity
+              key={index}
+              style={[styles.menuItem, index === menuItems.length - 1 && { borderBottomWidth: 0 }]}
+              onPress={item.onPress}
+            >
               <View style={[styles.iconContainer, { backgroundColor: item.color + '15' }]}>
                 <Icon name={item.icon} size={20} color={item.color} library={item.library} />
               </View>
@@ -73,6 +78,85 @@ export default function ProfileScreen() {
 
         <Text style={styles.version}>GrocMed Delivery • v1.0.0</Text>
       </ScrollView>
+
+      {/* Help & Support Modal */}
+      <Modal
+        visible={supportVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSupportVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            {/* Handle bar */}
+            <View style={styles.modalHandle} />
+
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Help & Support</Text>
+              <TouchableOpacity style={styles.modalClose} onPress={() => setSupportVisible(false)}>
+                <Icon name="close" size={22} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.modalSubtitle}>Our team is here to help. Reach out to us directly through any of the channels below:</Text>
+
+            {/* Support Actions */}
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCard}
+                onPress={() => {
+                  setSupportVisible(false);
+                  Linking.openURL('tel:9381078548');
+                }}
+              >
+                <View style={[styles.modalIconBox, { backgroundColor: '#E3F2FD' }]}>
+                  <Icon name="phone" library="material" size={24} color="#1565C0" />
+                </View>
+                <View style={styles.modalCardInfo}>
+                  <Text style={styles.modalCardTitle}>Call us on 9381078548</Text>
+                  <Text style={styles.modalCardDesc}>Tap to dial our support helpline</Text>
+                </View>
+                <Icon name="chevron-right" library="material" size={20} color={Colors.gray300} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalCard}
+                onPress={() => {
+                  setSupportVisible(false);
+                  Linking.openURL('mailto:Info@grocmed.com');
+                }}
+              >
+                <View style={[styles.modalIconBox, { backgroundColor: '#E8F5E9' }]}>
+                  <Icon name="email" library="material" size={24} color="#2E7D32" />
+                </View>
+                <View style={styles.modalCardInfo}>
+                  <Text style={styles.modalCardTitle}>Info@grocmed.com</Text>
+                  <Text style={styles.modalCardDesc}>Tap to send us an email</Text>
+                </View>
+                <Icon name="chevron-right" library="material" size={20} color={Colors.gray300} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalCard}
+                onPress={() => {
+                  setSupportVisible(false);
+                  Linking.openURL('https://wa.me/919381078548');
+                }}
+              >
+                <View style={[styles.modalIconBox, { backgroundColor: '#E0F2F1' }]}>
+                  <Icon name="whatsapp" library="fontawesome" size={24} color="#00695C" />
+                </View>
+                <View style={styles.modalCardInfo}>
+                  <Text style={styles.modalCardTitle}>Whatsapp no. 9381078548</Text>
+                  <Text style={styles.modalCardDesc}>Chat instantly with us on WhatsApp</Text>
+                </View>
+                <Icon name="chevron-right" library="material" size={20} color={Colors.gray300} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -217,5 +301,83 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     fontWeight: '500',
     marginBottom: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.gray200,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: Colors.textPrimary,
+  },
+  modalClose: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: Colors.gray100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: Colors.textTertiary,
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  modalActions: {
+    gap: 16,
+  },
+  modalCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  modalIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  modalCardInfo: {
+    flex: 1,
+  },
+  modalCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  modalCardDesc: {
+    fontSize: 13,
+    color: Colors.textTertiary,
   },
 });
