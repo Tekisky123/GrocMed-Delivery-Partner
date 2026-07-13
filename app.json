@@ -2,7 +2,7 @@
   "expo": {
     "name": "Grocmed Delivery Partner",
     "slug": "grocmed-delivery-partner",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "grocmed-delivery",
@@ -22,6 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.grocmed.deliverypartner",
+      "versionCode": 2,
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE",
