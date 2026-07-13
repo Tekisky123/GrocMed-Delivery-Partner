@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const TOKEN_KEY = 'delivery_partner_auth_token';
 
-const BASE_URL = 'https://grocmed-backend-production.up.railway.app/api';
+const BASE_URL = 'https://api.grocmed.com/api';
 // const BASE_URL = 'http://localhost:3000/api';
 
 export const tokenManager = {
