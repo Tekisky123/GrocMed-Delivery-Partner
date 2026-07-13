@@ -130,6 +130,11 @@ export default function OrdersScreen() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.customerName}>{item.customer?.name || 'Customer'}</Text>
+          {item.customer?.shopName ? (
+            <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 1 }}>
+              {item.customer.shopName}
+            </Text>
+          ) : null}
           <Text style={styles.itemCount}>{item.items?.length || 0} Items • {item.paymentMethod}</Text>
         </View>
         <TouchableOpacity style={styles.phoneButton} onPress={() => Linking.openURL(`tel:${item.customer?.phone}`)}>
