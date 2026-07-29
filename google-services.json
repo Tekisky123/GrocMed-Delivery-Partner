@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "740046456842",
+    "project_id": "grocmed-mobile-app",
+    "storage_bucket": "grocmed-mobile-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740046456842:android:6e8b8e44f06c53ac4af7f3",
+        "android_client_info": {
+          "package_name": "com.tekisky.grocmed.customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1IdzHExIzBhMbzVVk4klgJdkryRhekrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740046456842:android:c3b8f2586d1f16384af7f3",
+        "android_client_info": {
+          "package_name": "com.tekisky.grocmed.delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1IdzHExIzBhMbzVVk4klgJdkryRhekrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

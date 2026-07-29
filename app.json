@@ -22,6 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.grocmed.deliverypartner",
+      "googleServicesFile": "./google-services.json",
       "versionCode": 2,
       "permissions": [
         "INTERNET",
@@ -45,6 +46,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#00B074"
+        }
+      ],
       [
         "expo-image-picker",
         {
