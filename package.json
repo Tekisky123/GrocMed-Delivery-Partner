@@ -1,7 +1,7 @@
 {
   "name": "grocmed-delivery-partner",
   "main": "expo-router/entry",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
