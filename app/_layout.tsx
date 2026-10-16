@@ -21,8 +21,8 @@ Notifications.setNotificationHandler({
 
 export default function RootLayout() {
   const [mounted, setMounted] = useState(false);
-  const notificationListener = useRef<Notifications.EventSubscription>();
-  const responseListener = useRef<Notifications.EventSubscription>();
+  const notificationListener = useRef<Notifications.EventSubscription | undefined>(undefined);
+  const responseListener = useRef<Notifications.EventSubscription | undefined>(undefined);
 
   useEffect(() => {
     setMounted(true);
@@ -62,6 +62,7 @@ export default function RootLayout() {
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="login" />
+              <Stack.Screen name="forgot-password" />
             </Stack>
           </AuthProvider>
         </ToastProvider>

@@ -129,10 +129,12 @@ export default function OrdersScreen() {
           <Text style={styles.avatarText}>{(item.customer?.name || 'C')[0]}</Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.customerName}>{item.customer?.name || 'Customer'}</Text>
-          {item.customer?.shopName ? (
-            <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 1 }}>
-              {item.customer.shopName}
+          <Text style={[styles.customerName, { fontWeight: '800' }]}>
+            {item.customer?.shopName || item.customer?.name || 'Customer'}
+          </Text>
+          {item.customer?.shopName && item.customer?.name ? (
+            <Text style={{ fontSize: 13, fontWeight: '600', color: Colors.primary, marginTop: 1 }}>
+              Contact: {item.customer.name}
             </Text>
           ) : null}
           <Text style={styles.itemCount}>{item.items?.length || 0} Items • {item.paymentMethod}</Text>

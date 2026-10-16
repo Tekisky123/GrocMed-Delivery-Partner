@@ -456,10 +456,12 @@ export default function OrderDetailsScreen() {
               <Text style={styles.avatarTxt}>{(order.customer?.name || 'C')[0]}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.custName}>{order.customer?.name || 'Customer'}</Text>
-              {order.customer?.shopName ? (
-                <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 1 }}>
-                  {order.customer.shopName}
+              <Text style={[styles.custName, { fontWeight: '800' }]}>
+                {order.customer?.shopName || order.customer?.name || 'Customer'}
+              </Text>
+              {order.customer?.shopName && order.customer?.name ? (
+                <Text style={{ fontSize: 13, fontWeight: '600', color: Colors.primary, marginTop: 1 }}>
+                  Contact: {order.customer.name}
                 </Text>
               ) : null}
               <Text style={styles.custPhone}>{order.customer?.phone}</Text>

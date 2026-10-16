@@ -92,8 +92,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPartner((prev) => (prev ? { ...prev, ...partnerData } : null));
     }, []);
 
+    const contextValue = React.useMemo(() => ({
+        partner,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+        updatePartner,
+    }), [
+        partner,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+        updatePartner,
+    ]);
+
     return (
-        <AuthContext.Provider value={{ partner, isAuthenticated, isLoading, login, logout, updatePartner }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
